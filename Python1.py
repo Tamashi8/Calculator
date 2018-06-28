@@ -1,3 +1,6 @@
+# Made by: Andrew Lam
+# Date: 6/28/18
+
 import tkinter as tk
 import tkinter.messagebox
 from re import findall
