@@ -1,5 +1,5 @@
 # Made by: Andrew Lam
-# Date: 6/28/18
+# Date: 6/30/2018
 
 import tkinter as tk
 import tkinter.messagebox
@@ -24,7 +24,7 @@ def applyToEntry(key):
 
 def getLastNumber():
     global input
-    return findall("[0-9]+\.?[0-9]*", input)[-1]
+    return findall("[0-9]+\.?[0-9]*", input)[-1]        #[-]?[0-9]+\.?[0-9]*
 
 def openParenthesesExist():
     global input
@@ -44,6 +44,8 @@ def click(key, event=None):
     else:
         number = getLastNumber()
         if number[0] != '0':
+            applyToEntry(str(key))
+        elif number.find('.') != -1:
             applyToEntry(str(key))
 
 def zeroClick(event=None):
@@ -82,27 +84,33 @@ def operationClick(op, event=None):
 
 def parentheses(event=None):
     global input
-    if len(input) == 0 or any(x in "(*/" for x in input[-1]):
+    if len(input) == 0 or any(x in "(*/+-" for x in input[-1]):
         applyToEntry("(")
     elif (input[-1] == ')' or input[-1].isdigit()) and openParenthesesExist():
         applyToEntry(")")
     elif not any(x in "+-" for x in input[-1]):
         applyToEntry("*(")
 
-def percent(event=None):
-    global input
-    if len(input) > 0 and not any(x in "+-*/()" for x in input[-1]):
-        number = getLastNumber()
-        percent = str(eval(number + "*0.01"))
-        input = input[:-len(number)] + percent
-        entry.set(input)
-
 def sign():
     global input
-    if len(input) > 0 and not any(x in "+-*/()" for x in input[-1]):
-        number = findall("[-]?[0-9]+\.?[0-9]*", input)[-1]
-        sign = str(eval(number + "*-1"))
-        input = input[:-len(number)] + sign
+    if len(input) > 0 and (input[-1].isdigit() or input[-1] == '.'):
+        num = findall("[-]?[0-9]+\.?[0-9]*", input)[-1]
+        sign = ""
+        if len(num) == len(input):
+            sign = str(eval(num + "*-1"))
+            if sign == "-0.0" or sign == "0.0":
+                sign = sign[:-1]
+            input = sign
+        elif num[0] == '-' and not any(x in "+-*/()" for x in input[-len(num)-1]):
+            sign = str(eval(num[1:] + "*-1"))
+            if sign == "-0.0" or sign == "0.0":
+                sign = sign[:-1]
+            input = input[:-len(num[1:])] + sign
+        else:
+            sign = str(eval(num + "*-1"))
+            if sign == "-0.0" or sign == "0.0":
+                sign = sign[:-1]
+            input = input[:-len(num)] + sign
         entry.set(input)
 
 def deleteClick(event=None):
@@ -145,7 +153,6 @@ bSub = createButton("-");   bSub.configure(command=lambda:operationClick("-"))
 bMul = createButton("×");   bMul.configure(command=lambda:operationClick("*"))
 bDiv = createButton("÷");   bDiv.configure(command=lambda:operationClick("/"))
 bPar = createButton("( )"); bPar.configure(command=lambda:parentheses())
-bMod = createButton("%");   bMod.configure(command=lambda:percent())
 bDel = createButton("DEL"); bDel.configure(command=lambda:deleteClick())
 bClear = createButton("C"); bClear.configure(command=lambda:clear())
 bEqual = createButton("="); bEqual.configure(command=lambda:equal())
@@ -169,7 +176,6 @@ frame.bind('*', lambda event: operationClick("*", event))
 frame.bind('/', lambda event: operationClick("/", event))
 frame.bind('(', lambda event: parentheses(event))
 frame.bind(')', lambda event: parentheses(event))
-frame.bind('%', lambda event: percent(event))
 frame.bind('<BackSpace>', lambda event: deleteClick(event))
 frame.bind('<Delete>', lambda event: deleteClick(event))
 frame.bind('<Escape>', lambda event: clear(event))
@@ -178,27 +184,26 @@ frame.bind('.', lambda event: decimalClick(event))
 
 # Placement design
 textbox.grid(row = 0, columnspan = 4, sticky = "we")
-b1.grid(row = 5, column = 0, sticky = "we")
-b2.grid(row = 5, column = 1, sticky = "we")
-b3.grid(row = 5, column = 2, sticky = "we")
-b4.grid(row = 4, column = 0, sticky = "we")
-b5.grid(row = 4, column = 1, sticky = "we")
-b6.grid(row = 4, column = 2, sticky = "we")
-b7.grid(row = 3, column = 0, sticky = "we")
-b8.grid(row = 3, column = 1, sticky = "we")
-b9.grid(row = 3, column = 2, sticky = "we")
-b0.grid(row = 6, column = 1, sticky = "we")
-bAdd.grid(row = 5, column = 3, sticky = "we")
-bSub.grid(row = 4, column = 3, sticky = "we")
-bMul.grid(row = 3, column = 3, sticky = "we")
-bDiv.grid(row = 2, column = 3, sticky = "we")
-bPar.grid(row = 2, column = 1, sticky = "we")
-bMod.grid(row = 2, column = 2, sticky = "we")
-bDel.grid(row = 1, columnspan = 4, sticky = "we")
-bClear.grid(row = 2, column = 0, sticky = "we")
-bEqual.grid(row = 6, column = 3, sticky = "we")
-bSign.grid(row = 6, column = 0, sticky = "we")
-bDot.grid(row = 6, column = 2, sticky = "we")
+b1.grid(row = 4, column = 0, sticky = "we")
+b2.grid(row = 4, column = 1, sticky = "we")
+b3.grid(row = 4, column = 2, sticky = "we")
+b4.grid(row = 3, column = 0, sticky = "we")
+b5.grid(row = 3, column = 1, sticky = "we")
+b6.grid(row = 3, column = 2, sticky = "we")
+b7.grid(row = 2, column = 0, sticky = "we")
+b8.grid(row = 2, column = 1, sticky = "we")
+b9.grid(row = 2, column = 2, sticky = "we")
+b0.grid(row = 5, column = 1, sticky = "we")
+bAdd.grid(row = 4, column = 3, sticky = "we")
+bSub.grid(row = 3, column = 3, sticky = "we")
+bMul.grid(row = 2, column = 3, sticky = "we")
+bDiv.grid(row = 1, column = 3, sticky = "we")
+bPar.grid(row = 1, column = 1, sticky = "we")
+bDel.grid(row = 1, column = 2, sticky = "we")
+bClear.grid(row = 1, column = 0, sticky = "we")
+bEqual.grid(row = 5, column = 3, sticky = "we")
+bSign.grid(row = 5, column = 0, sticky = "we")
+bDot.grid(row = 5, column = 2, sticky = "we")
 
 # Run program
 frame.focus_set()
