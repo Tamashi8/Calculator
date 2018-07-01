@@ -50,7 +50,7 @@ def click(key, event=None):
 
 def zeroClick(event=None):
     global input
-    if len(input) == 0:
+    if len(input) == 0 or not any(x.isdigit() for x in input):
         click('0')
     else:
         number = getLastNumber()
